@@ -15,6 +15,9 @@
         {
           "name": "Abby Brennan",
           "email": "abby.brennan@evergreentrucks.com",
+          "identities": [
+            "abby.brennan@evergreentrucks.com"
+          ],
           "groups": [
             "009a1bdb-3025-4477-ab62-15878caa827a",
             "d84a45b3-0e69-4744-95c5-3b2af93e9bdb"
@@ -24,6 +27,9 @@
         {
           "name": "Gary Ward",
           "email": "gary.ward@evergreentrucks.com",
+          "identities": [
+            "gary.ward@evergreentrucks.com"
+          ],
           "groups": [
             "009a1bdb-3025-4477-ab62-15878caa827a"
           ],
@@ -32,27 +38,59 @@
         {
           "name": "eza5woi",
           "email": "eza5woi@eza5woi.onmicrosoft.com",
+          "identities": [
+            "eza5woi@eza5woi.onmicrosoft.com"
+          ],
           "id": "87e97d68-0422-457d-b4cd-e0fdc9a086d4"
         },
         {
           "name": "Adele Vance",
           "email": "Adele.Vance@eza5woi.onmicrosoft.com",
+          "identities": [
+            "Adele.Vance@eza5woi.onmicrosoft.com"
+          ],
+          "groups": [
+            "677c9eff-16cb-4479-9d87-149918099616",
+            "eee6f6aa-8c06-4ca9-a340-c7c50964c6da"
+          ],
           "id": "bcbbb07b-bdf7-487e-9dbd-a2baa13efd02"
         },
         {
           "name": "pedro.volu@servicenow.com",
           "email": "pedro.volu@servicenow.com",
+          "identities": [
+            "pedro.volu@servicenow.com"
+          ],
+          "groups": [
+            "7c4dcf29-e80f-4778-a9d0-e3709cb6b0f7"
+          ],
           "id": "cde935f4-be16-41e3-9223-04c48a21d042"
         }
       ],
       "local_groups": [
         {
           "name": "Group Alpha",
+          "groups": [
+            "677c9eff-16cb-4479-9d87-149918099616",
+            "eee6f6aa-8c06-4ca9-a340-c7c50964c6da"
+          ],
           "id": "009a1bdb-3025-4477-ab62-15878caa827a"
+        },
+        {
+          "name": "Project Falcon Builders",
+          "id": "677c9eff-16cb-4479-9d87-149918099616"
+        },
+        {
+          "name": "Project Falcon Owners",
+          "id": "7c4dcf29-e80f-4778-a9d0-e3709cb6b0f7"
         },
         {
           "name": "Group Delta",
           "id": "d84a45b3-0e69-4744-95c5-3b2af93e9bdb"
+        },
+        {
+          "name": "Project Falcon Users",
+          "id": "eee6f6aa-8c06-4ca9-a340-c7c50964c6da"
         }
       ],
       "local_roles": [],
@@ -61,34 +99,478 @@
       "custom_properties": {},
       "resources": [
         {
-          "id": "ri.actions.main.action-type.055d1732-87e5-4684-8f3e-c8a303b07e16",
-          "name": "[Example] Add Route Alert Comment",
-          "resource_type": "Program"
+          "id": "ri.compass.main.folder.c2e0808a-cdb3-4f43-a3b8-506db6f194b2",
+          "name": "pvolu",
+          "resource_type": "Workspace"
         },
         {
-          "id": "ri.actions.main.action-type.0e413e43-e45f-4cc0-a0ab-ece91bf3d745",
-          "name": "Add One State Callout",
-          "resource_type": "Program"
+          "id": "ri.compass.main.folder.480ec4ac-2f32-4f02-b447-e1d9bb3fecec",
+          "name": "Project Falcon",
+          "resource_type": "Project",
+          "description": "Flacon project to manage logistics",
+          "sub_resources": [
+            {
+              "id": "ri.opus.main.map.74efa5c9-298c-4044-bf25-416d727e59c1",
+              "name": "Map",
+              "resource_type": "OPUS_MAP"
+            }
+          ]
         },
         {
-          "id": "ri.actions.main.action-type.4a6f283b-75b4-45df-972c-939f4f877647",
-          "name": "[Example] Close Alert",
-          "resource_type": "Program"
+          "id": "ri.compass.main.folder.b4f40e5b-d617-4282-b5cc-0b813553f177",
+          "name": "First project",
+          "resource_type": "Project"
         },
         {
-          "id": "ri.actions.main.action-type.52ddce8f-db1c-4f35-9d8c-ff641a057e2d",
-          "name": "[Example] Assign Alert",
-          "resource_type": "Program"
-        },
-        {
-          "id": "ri.actions.main.action-type.8937e9be-0ad3-48de-9b5a-a7f9c8faddf0",
-          "name": "[Example] Update Route Alert Status",
-          "resource_type": "Program"
-        },
-        {
-          "id": "ri.actions.main.action-type.b42f6c69-c796-4734-894e-15de08d0e0ec",
-          "name": "Edit Callout",
-          "resource_type": "Program"
+          "id": "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6",
+          "name": "AIP Now Ontology",
+          "resource_type": "Project",
+          "description": "The AIP Now Ontology is a starter pack that includes a comprehensive Ontology populated with various data sources and objects, based on real-world concepts from the airline industry.",
+          "sub_resources": [
+            {
+              "id": "ri.foundry.main.dataset.9410dfea-342a-433a-9976-1a88b16f7b3c",
+              "name": "[Example] Sensor Readings | LGA Approach and Departure",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.bfe67913-02a3-4d2c-b24a-154b1b662d7b",
+              "name": "[Example] Semi-Structured Text | FAA Final Airworthiness Directives",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.70642d01-7ac4-4a22-bdf5-c663a5eec28d",
+              "name": "[Example] GeoJSON | Runway Shapes",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.2cf36783-d7b4-4fbf-8ec6-74afc2c7df45",
+              "name": "[Example] FAA Airports",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.bdb17957-5b3d-406f-8852-d62d5bcd856e",
+              "name": "[Example] FAA Aircraft Registration",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.4b0c709f-bed8-4593-a0eb-b7ff3e3dc194",
+              "name": "[Example] BTS Flights",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.17619508-eba9-48f0-a19b-d81324b8c6a0",
+              "name": "[Example] BTS Carriers",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.3281b15f-faab-4e95-96e4-1d08a05f4af9",
+              "name": "[Example] BTS Airports",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.4be835c9-3650-4b15-ad14-05dbebb38df9",
+              "name": "[Example] BTS Aircraft Inventory",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.dd7772d9-5595-44b7-94b7-5823fb758b87",
+              "name": "[Example] Time Series Sync | Sensor Readings Dataset",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.7a75274c-f865-41a1-9b83-2f908ceb848d",
+              "name": "[Example] Time Series Sync | Events Dataset",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.b43cd8e6-8757-46d3-bd30-54cc18093622",
+              "name": "[Example] Sensors",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.806f056c-c088-433f-87a3-8af0170b32a1",
+              "name": "Route Alerts",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.8b6a802d-8b83-4e77-8225-64f614426f14",
+              "name": "Route Alert Comment",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.20e6fa74-5b6a-44a6-a672-b2840746a070",
+              "name": "[Log] Route Alert Status Change",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.bbd532b8-3fd9-4e34-bb99-7799887164ee",
+              "name": "Runways",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.ddef9285-b49a-4312-88ab-951b684e57a5",
+              "name": "Runway <> Airport Mapping",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.9890e1ea-3745-4a8e-962f-e718ec29bf99",
+              "name": "Routes",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.996fe2fd-4c18-4f74-b9c8-62a9fb0b54f3",
+              "name": "Flights",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.01289e97-75e8-4cac-b9ec-21d1f500008d",
+              "name": "Carriers",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.dc7cae5f-b1b0-4233-9440-ff6592adcd2d",
+              "name": "Airports",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.0277b0dc-0dd5-408b-bf5c-65cc5ac09c22",
+              "name": "Aircraft",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.33e9241d-a5e8-42c0-9fdc-b0a260b8063c",
+              "name": "[Example] Workshop Explainers [Writeback]",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.5f0f8678-639e-49c0-a49f-e7703850a4c7",
+              "name": "[Example] Workshop Explainers",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.actions.main.action-type.055d1732-87e5-4684-8f3e-c8a303b07e16",
+              "name": "[Example] Add Route Alert Comment",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.actions.main.action-type.0e413e43-e45f-4cc0-a0ab-ece91bf3d745",
+              "name": "Add One State Callout",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.actions.main.action-type.4a6f283b-75b4-45df-972c-939f4f877647",
+              "name": "[Example] Close Alert",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.actions.main.action-type.52ddce8f-db1c-4f35-9d8c-ff641a057e2d",
+              "name": "[Example] Assign Alert",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.actions.main.action-type.8937e9be-0ad3-48de-9b5a-a7f9c8faddf0",
+              "name": "[Example] Update Route Alert Status",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.actions.main.action-type.b42f6c69-c796-4734-894e-15de08d0e0ec",
+              "name": "Edit Callout",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.ontology.main.object-type.8990323b-41bd-419a-95fa-30a78ac32797",
+              "name": "[Example][Log] Update Route Alert Status",
+              "resource_type": "ONTOLOGY_OBJECTTYPE",
+              "description": "This object type was automatically created when logging was enabled for the Action type: Update Route Alert Status"
+            },
+            {
+              "id": "ri.ontology.main.object-type.94f7855f-bd84-4dd2-a99e-142bd8d6fdfa",
+              "name": "[Example] Runway",
+              "resource_type": "ONTOLOGY_OBJECTTYPE"
+            },
+            {
+              "id": "ri.ontology.main.object-type.a8d4d9ad-7022-4819-86bf-511e4a23d81a",
+              "name": "[Example] Route Alert Comment",
+              "resource_type": "ONTOLOGY_OBJECTTYPE"
+            },
+            {
+              "id": "ri.ontology.main.object-type.94b4c91a-e68a-4b5a-afc2-636f087c7359",
+              "name": "[Example] Route Alert",
+              "resource_type": "ONTOLOGY_OBJECTTYPE",
+              "description": "Alerts generated based on historical route performance, structured as an operational object type to demonstrate basic status and assignment patterns."
+            },
+            {
+              "id": "ri.ontology.main.object-type.8ea3cb3b-1b40-422c-be53-7f008423cf41",
+              "name": "[Example] Route",
+              "resource_type": "ONTOLOGY_OBJECTTYPE",
+              "description": "Derived from flights between pairs of departure and arrival airports. Demonstrates the use of deriving \"intermediate\" object types from granular data as well as pre-calculating default metrics in a pipeline. Full 2023 flight history available for a subset of routes where the \"Complete Flight History\" property is \"true\"."
+            },
+            {
+              "id": "ri.ontology.main.object-type.b93389b0-24a4-4a56-b689-036dc3c4bd62",
+              "name": "[Example] Flight Sensor",
+              "resource_type": "ONTOLOGY_OBJECTTYPE",
+              "description": "The flight sensor holds any sensor readings for the flight object. It is linked to flights as a sensor object and therefore analyses on the flight object can automatically access time series on the flight sensor. "
+            },
+            {
+              "id": "ri.ontology.main.object-type.acf088f4-a878-4824-b69a-56a1684d6d80",
+              "name": "[Example] Flight",
+              "resource_type": "ONTOLOGY_OBJECTTYPE",
+              "description": "Represents each individual commercial passenger flight in the US in 2023. With geospatial and timeseries property examples."
+            },
+            {
+              "id": "ri.ontology.main.object-type.1faca644-688a-459a-981c-266a8a0ea4d4",
+              "name": "[Example] Explainer",
+              "resource_type": "ONTOLOGY_OBJECTTYPE",
+              "description": "Stores re-usable callout references to integrate into Workshop and other one state examples"
+            },
+            {
+              "id": "ri.ontology.main.object-type.6e140019-dea5-43a7-9e29-b856eba7763e",
+              "name": "[Example] Carrier",
+              "resource_type": "ONTOLOGY_OBJECTTYPE",
+              "description": "Carriers with derived fleet metrics from associated aircraft. Full 2023 flight history available for a subset of carriers where the \"Complete Flight History\" property is \"true\"."
+            },
+            {
+              "id": "ri.ontology.main.object-type.c49d94f7-c9c3-48be-891b-55b47ff95d8f",
+              "name": "[Example] Airport",
+              "resource_type": "ONTOLOGY_OBJECTTYPE",
+              "description": "Airports with various geospatial properties. Useful for map examples. Full 2023 flight history available for a subset of airports where the \"Complete Flight History\" property is \"true\"."
+            },
+            {
+              "id": "ri.ontology.main.object-type.667c67f2-ff78-43d1-805b-2bdae33a0627",
+              "name": "[Example] Aircraft",
+              "resource_type": "ONTOLOGY_OBJECTTYPE",
+              "description": "Aircraft data with basic properties. Full 2023 flight history available for a subset of aircraft where the \"Complete Flight History\" property is \"true\"."
+            },
+            {
+              "id": "ri.ontology.main.relation.80825c1c-5e58-4056-a12f-55b57f8a1fc5",
+              "name": "Runway - Airport",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.ontology.main.relation.15eb2ebf-20e5-4eef-a923-9948b9a0c950",
+              "name": "Route Alert - [Log] Update Route Alert Status",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.ontology.main.relation.3569dbec-4c6a-4621-86e6-23d5b7a3ab8c",
+              "name": "Route Alert - Route Alert Comment",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.ontology.main.relation.7f0c2937-6c88-44eb-ab5b-6883aeadc960",
+              "name": "Route - Route Alert",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.ontology.main.relation.25150107-3c52-4e62-914a-d998aa1cc740",
+              "name": "Route - Flight",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.workshop.main.module.2a839ebe-4712-476a-9286-85aa555ed55d",
+              "name": "Reference Foundation Landing Page",
+              "resource_type": "WORKSHOP_MODULE"
+            },
+            {
+              "id": "ri.ontology.main.relation.541dd3ca-9a30-4d12-ae44-4a44dacb18f9",
+              "name": "Flight - Flight Sensor",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.notepad.main.notepad.b2af7a8d-2336-4e7c-87a6-7b64d04c51c9",
+              "name": "[2] Foundation Data Index",
+              "resource_type": "NOTEPAD_NOTEPAD"
+            },
+            {
+              "id": "ri.notepad.main.notepad.26d8c362-87ec-4035-bdb6-364f20ba93c1",
+              "name": "[1] Foundation Reference Examples Index",
+              "resource_type": "NOTEPAD_NOTEPAD"
+            },
+            {
+              "id": "ri.notepad.main.notepad.940d9509-d414-4770-a0eb-8bce2ebd2636",
+              "name": "Timeseries | Sensor Data documentation",
+              "resource_type": "NOTEPAD_NOTEPAD"
+            },
+            {
+              "id": "ri.notepad.main.notepad.a0d19d51-7f38-4423-94c5-1626010d1dc7",
+              "name": "Timeseries | Event Pipeline Documentation",
+              "resource_type": "NOTEPAD_NOTEPAD"
+            },
+            {
+              "id": "ri.notepad.main.notepad.b4fe3713-5b9b-4c9d-a55c-67f14869ac1f",
+              "name": "Ticket with Comments | Route Alert Documentation",
+              "resource_type": "NOTEPAD_NOTEPAD"
+            },
+            {
+              "id": "ri.notepad.main.notepad.68df0f04-6e76-46e8-b2db-2a6c33035c30",
+              "name": "Ontology Pipeline Documentation",
+              "resource_type": "NOTEPAD_NOTEPAD"
+            },
+            {
+              "id": "ri.notepad.main.notepad.9b3c4e79-672b-4128-9bcc-a995a510bbf7",
+              "name": "Metrics and Alerts Pipeline Documentation",
+              "resource_type": "NOTEPAD_NOTEPAD"
+            },
+            {
+              "id": "ri.notepad.main.notepad.eb4a5dda-f227-4133-9bf9-f49498db6c88",
+              "name": "Map and Gantt Charts | Aircraft",
+              "resource_type": "NOTEPAD_NOTEPAD"
+            },
+            {
+              "id": "ri.notepad.main.notepad.5609f224-ffe1-411e-8eb4-502b77b0b93d",
+              "name": "Filters and Complex Charts | Route Performance Documentation",
+              "resource_type": "NOTEPAD_NOTEPAD"
+            },
+            {
+              "id": "ri.notepad.main.notepad.29bd293c-2919-4e28-ab2f-7d45331be411",
+              "name": "Basic Metrics | Route Overview Documentation",
+              "resource_type": "NOTEPAD_NOTEPAD"
+            },
+            {
+              "id": "ri.notepad.main.notepad.5b617a1b-201b-4eef-9da8-3a4ff19d2694",
+              "name": "Basic Inbox | Route Alert Inbox Documentation",
+              "resource_type": "NOTEPAD_NOTEPAD"
+            },
+            {
+              "id": "ri.notepad.main.notepad.95a41f19-b44b-434e-8acd-ce970e3484fb",
+              "name": "Basic Charts | Route Carriers Documentation",
+              "resource_type": "NOTEPAD_NOTEPAD"
+            },
+            {
+              "id": "ri.ontology.main.relation.d79dc7d7-2599-43b3-bebb-a165e97557d2",
+              "name": "Destination Airport - Arriving Route",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.ontology.main.relation.38020692-099e-45ce-bd59-44bdf9b22628",
+              "name": "Departure Airport - Departing Route",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.ontology.main.relation.a2ebb5d2-f43d-4aef-9e1a-5a94372168c3",
+              "name": "Departure Airport - Departing Flight",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.eddie.main.pipeline.7721cdc6-5766-4196-b763-2581ae941109",
+              "name": "[Example] Time Series Sync | Sensor Pipeline",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.eddie.main.pipeline.4062e2fb-7676-4141-b5db-c1d3c14db54e",
+              "name": "[Example] Time Series Sync | Event Pipeline",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.eddie.main.pipeline.5b3ad838-1983-413c-970f-96a8c62c7348",
+              "name": "[Example] Ontology Preparation Pipeline",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.eddie.main.pipeline.b01168a1-885a-477d-995c-098c8f125381",
+              "name": "[Example] GeoJSON Extraction Pipeline",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.mio.main.media-set.2599828d-6a0a-485c-a6ec-451fd19671c6",
+              "name": "[Example] PDF Mediaset | NTSB Aviation Investigation Final Reports",
+              "resource_type": "MIO_MEDIA_SET"
+            },
+            {
+              "id": "ri.time-series-catalog.main.sync.fb6d9723-f1eb-4836-8b08-b56289e4c41b",
+              "name": "[Example] Time Series Sync | Sensor Readings",
+              "resource_type": "TIME_SERIES_CATALOG_SYNC"
+            },
+            {
+              "id": "ri.time-series-catalog.main.sync.e8bf92cc-2cfa-4d26-a35e-a1c0e11da823",
+              "name": "[Example] Time Series Sync | Events",
+              "resource_type": "TIME_SERIES_CATALOG_SYNC"
+            },
+            {
+              "id": "ri.eddie.main.pipeline.e6d97079-4041-463b-b0e3-017c9a4aec85",
+              "name": " [Example] Metrics and Alerts Pipeline",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.ontology.main.relation.60cd4a80-8718-4bd8-8c3f-5cbf8ca161e2",
+              "name": "Carriers - Flights",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.ontology.main.relation.43031634-20b9-4200-aed9-70e7bc6f3896",
+              "name": "Carrier - Aircraft",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.ontology.main.relation.4135748a-307f-4f32-bb47-6f19d028a0fa",
+              "name": "Arrival Airport - Arriving Flight",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.workshop.main.module.3edec407-e9c5-4e58-9b58-327a8533469c",
+              "name": "[Example] Ticket with Comments | Route Alert",
+              "resource_type": "WORKSHOP_MODULE"
+            },
+            {
+              "id": "ri.workshop.main.module.ca9a04f1-2dcd-4624-a818-67e45e91578d",
+              "name": "[Example] Map and Gantt Charts | Aircraft",
+              "resource_type": "WORKSHOP_MODULE"
+            },
+            {
+              "id": "ri.workshop.main.module.5aa40a2e-0893-4cb6-a73f-90a2a9f378c9",
+              "name": "[Example] Linked Filters with Map and Charts | Flights Map",
+              "resource_type": "WORKSHOP_MODULE"
+            },
+            {
+              "id": "ri.workshop.main.module.32a76801-650d-43dc-815f-60b209600a9d",
+              "name": "[Example] Filters and Complex Charts | Route Performance",
+              "resource_type": "WORKSHOP_MODULE",
+              "description": "The Route Performance workshop module demonstrates patterns for defining and comparing two object sets of the same object type across metrics and charts."
+            },
+            {
+              "id": "ri.workshop.main.module.69df5fca-1aa6-4823-b15a-6d9cab68dd5c",
+              "name": "[Example] Basic Metric Cards | Route Overview",
+              "resource_type": "WORKSHOP_MODULE",
+              "description": "A basic workshop module with a map and aggregated metrics about a single the route."
+            },
+            {
+              "id": "ri.workshop.main.module.553e725f-0f3f-4c9b-836d-617822b8daac",
+              "name": "[Example] Basic Charts | Route Carriers",
+              "resource_type": "WORKSHOP_MODULE",
+              "description": "A workshop module comparing the performance and capacity of carriers. Demonstrates basic charts and layouts for information-dense dashboards."
+            },
+            {
+              "id": "ri.workshop.main.module.bd4342f2-8082-4001-b7f9-2a494efe3884",
+              "name": "[Example]  Embedded Module | Airport",
+              "resource_type": "WORKSHOP_MODULE"
+            },
+            {
+              "id": "ri.workshop.main.module.bbf0b33e-5bb6-455e-9003-1b5dbe3f807b",
+              "name": "[Example] Reusable \"Learn More\" Overlay",
+              "resource_type": "WORKSHOP_MODULE"
+            },
+            {
+              "id": "ri.workshop.main.module.7f387d2c-ad3b-4416-8897-c90386ffa334",
+              "name": "[Example] Map-Centric Module | Airport and Routes",
+              "resource_type": "WORKSHOP_MODULE"
+            },
+            {
+              "id": "ri.workshop.main.module.d920b77a-da91-4fd1-9851-2bc81c0f1c50",
+              "name": "[Example] Basic Inbox | Route Alert Inbox",
+              "resource_type": "WORKSHOP_MODULE",
+              "description": "The Route Alert Inbox provides a simple wrapper around the route object view to demonstrate how reusing module components makes building operational applications trivial."
+            },
+            {
+              "id": "ri.ontology.main.relation.84df6553-22ac-428e-91a4-af30bd17f2b4",
+              "name": "Aircraft - Flight",
+              "resource_type": "ONTOLOGY_RELATION"
+            },
+            {
+              "id": "ri.marketplace.main.block-set-installation.afdb893a-0ed0-4378-8a95-374995e210c6",
+              "name": "AIP Now Ontology",
+              "resource_type": "MARKETPLACE_BLOCK_SET_INSTALLATION"
+            }
+          ]
         }
       ]
     }
@@ -133,5 +615,183 @@
       "resource_types": []
     }
   ],
-  "identity_to_permissions": []
+  "identity_to_permissions": [
+    {
+      "identity": "2ce8ee6b-3bb7-4c7a-9e52-c1735eee510a",
+      "identity_type": "local_user",
+      "application_permissions": [
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.b4f40e5b-d617-4282-b5cc-0b813553f177",
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6",
+            "ri.compass.main.folder.480ec4ac-2f32-4f02-b447-e1d9bb3fecec.ri.opus.main.map.74efa5c9-298c-4044-bf25-416d727e59c1"
+          ],
+          "permission": "View Data"
+        },
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+          ],
+          "permission": "Edit Logic"
+        },
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+          ],
+          "permission": "Run Model"
+        }
+      ]
+    },
+    {
+      "identity": "453e6396-42eb-4064-8ae6-cdda4f5f00aa",
+      "identity_type": "local_user",
+      "application_permissions": [
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+          ],
+          "permission": "Edit Logic"
+        },
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+          ],
+          "permission": "Run Model"
+        },
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+          ],
+          "permission": "View Data"
+        }
+      ]
+    },
+    {
+      "identity": "cde935f4-be16-41e3-9223-04c48a21d042",
+      "identity_type": "local_user",
+      "application_permissions": [
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.b4f40e5b-d617-4282-b5cc-0b813553f177",
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+          ],
+          "permission": "Manage Access"
+        }
+      ]
+    },
+    {
+      "identity": "009a1bdb-3025-4477-ab62-15878caa827a",
+      "identity_type": "local_group",
+      "application_permissions": [
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+          ],
+          "permission": "View Data"
+        },
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+          ],
+          "permission": "Edit Logic"
+        },
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+          ],
+          "permission": "Run Model"
+        }
+      ]
+    },
+    {
+      "identity": "677c9eff-16cb-4479-9d87-149918099616",
+      "identity_type": "local_group",
+      "application_permissions": [
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.480ec4ac-2f32-4f02-b447-e1d9bb3fecec"
+          ],
+          "permission": "Edit Logic"
+        },
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.480ec4ac-2f32-4f02-b447-e1d9bb3fecec"
+          ],
+          "permission": "Run Model"
+        },
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.480ec4ac-2f32-4f02-b447-e1d9bb3fecec"
+          ],
+          "permission": "View Data"
+        }
+      ]
+    },
+    {
+      "identity": "7c4dcf29-e80f-4778-a9d0-e3709cb6b0f7",
+      "identity_type": "local_group",
+      "application_permissions": [
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.480ec4ac-2f32-4f02-b447-e1d9bb3fecec"
+          ],
+          "permission": "Manage Access"
+        }
+      ]
+    },
+    {
+      "identity": "d84a45b3-0e69-4744-95c5-3b2af93e9bdb",
+      "identity_type": "local_group",
+      "application_permissions": [
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+          ],
+          "permission": "Edit Logic"
+        },
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+          ],
+          "permission": "Run Model"
+        },
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+          ],
+          "permission": "View Data"
+        }
+      ]
+    },
+    {
+      "identity": "eee6f6aa-8c06-4ca9-a340-c7c50964c6da",
+      "identity_type": "local_group",
+      "application_permissions": [
+        {
+          "application": "palantir-foundry",
+          "resources": [
+            "ri.compass.main.folder.480ec4ac-2f32-4f02-b447-e1d9bb3fecec"
+          ],
+          "permission": "View Data"
+        }
+      ]
+    }
+  ]
 }

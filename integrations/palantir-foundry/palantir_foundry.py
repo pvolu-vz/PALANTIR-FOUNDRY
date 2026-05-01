@@ -151,7 +151,7 @@ class PalantirFoundryClient:
         """Fetch all Spaces from the Palantir Foundry v2 Filesystem API."""
         try:
             return self.get_paginated_results(
-                "/api/v2/filesystem/spaces", items_key="data"
+                "/api/v2/filesystem/spaces", items_key="data", params={"preview": "true"}
             )
         except requests.RequestException:
             log.error("Failed to fetch spaces")
@@ -163,6 +163,7 @@ class PalantirFoundryClient:
             return self.get_paginated_results(
                 f"/api/v2/filesystem/folders/{folder_rid}/children",
                 items_key="data",
+                params={"preview": "true"},
             )
         except requests.RequestException as e:
             log.debug("Could not list children of %s: %s", folder_rid, e)
@@ -330,29 +331,21 @@ class PalantirFoundryClient:
 
 
 def _apply_resource_properties(resource, data: Dict) -> None:
-    """Set common metadata properties on an OAA resource object."""
+    """Set description on an OAA resource object if present in the source data."""
     if description := data.get("description"):
-        resource.add_property("description", description, "str")
-    if owner := data.get("owner"):
-        resource.add_property("owner", owner, "str")
-    if created := data.get("createdAt") or data.get("createdTime"):
-        resource.add_property("created_at", str(created), "str")
-    if rtype := data.get("type"):
-        resource.add_property("resource_type", rtype, "str")
+        resource.description = description
 
 
-def _map_role_to_oaa_permission(role_id: str, role_display_name: str = "") -> str:
-    """Map a Foundry role (by UUID + display name) to an OAA permission name."""
+def _map_role_to_oaa_permissions(role_id: str, role_display_name: str = "") -> List[str]:
+    """Map a Foundry role ID (e.g. compass:edit, marketplace-installation:manage) to OAA permission names."""
     name = role_display_name.lower() if role_display_name else role_id.lower()
-    if any(kw in name for kw in ("owner", "administer", "admin")):
-        return "owner"
-    if any(kw in name for kw in ("editor", "write", "edit")):
-        return "editor"
-    if any(kw in name for kw in ("discover",)):
-        return "discoverer"
-    if any(kw in name for kw in ("viewer", "view", "read")):
-        return "viewer"
-    return "viewer"
+    if any(kw in name for kw in ("manage", "owner", "administer", "admin")):
+        return ["Manage Access"]
+    if any(kw in name for kw in ("edit", "contributor", "write", "build")):
+        return ["Edit Logic", "Run Model", "View Data"]
+    if any(kw in name for kw in ("view", "viewer", "read", "discover")):
+        return ["View Data"]
+    return ["View Data"]
 
 
 def _role_to_action_permissions(role_display_name: str) -> List[str]:
@@ -428,8 +421,10 @@ def build_oaa_payload(
         email = user.get("email")
         if email:
             oaa_user.email = email
+            oaa_user.add_identity(email)
         elif "@" in username:
             oaa_user.email = username
+            oaa_user.add_identity(username)
         user_lookup[uid] = oaa_user
         log.debug("Added user: %s (%s)", username, uid)
 
@@ -544,6 +539,10 @@ def build_oaa_payload(
         if not rid:
             log.warning("Resource missing rid/id — skipping")
             continue
+        # Skip action types already handled by the programs loop
+        if rid in resource_lookup:
+            log.debug("Skipping resource %s — already added as a program", rid)
+            continue
         name = res.get("displayName") or res.get("name") or rid
         rtype = res.get("type", "Resource")
         rtype_label = "Program" if any(
@@ -590,11 +589,18 @@ def build_oaa_payload(
                 continue
 
             if p_type == "USER":
-                log.debug(
-                    "Skipping direct user grant: user %s, role %s, resource %s",
-                    p_id, role_id, resource_id,
-                )
-                skipped_direct_user_grants += 1
+                oaa_user = user_lookup.get(p_id)
+                if oaa_user:
+                    role_display = foundry_data.get("role_lookup", {}).get(role_id, "")
+                    for perm in _map_role_to_oaa_permissions(role_id, role_display):
+                        oaa_user.add_permission(perm, resources=[oaa_resource])
+                    total_permissions += 1
+                else:
+                    log.debug(
+                        "Skipping direct user grant for unknown user %s, role %s, resource %s",
+                        p_id, role_id, resource_id,
+                    )
+                    skipped_direct_user_grants += 1
             elif p_type == "GROUP":
                 if p_id not in group_lookup:
                     group_lookup[p_id] = app.add_local_group(p_id, unique_id=p_id)
@@ -603,10 +609,9 @@ def build_oaa_payload(
                 if role_name:
                     oaa_group.add_role(role_name, resources=[oaa_resource])
                 else:
-                    # Role not in admin list — fall back to mapped permission
                     role_display = foundry_data.get("role_lookup", {}).get(role_id, "")
-                    perm = _map_role_to_oaa_permission(role_id, role_display)
-                    oaa_group.add_permission(perm, resources=[oaa_resource])
+                    for perm in _map_role_to_oaa_permissions(role_id, role_display):
+                        oaa_group.add_permission(perm, resources=[oaa_resource])
                 total_permissions += 1
 
     if skipped_direct_user_grants:
@@ -749,6 +754,26 @@ def main() -> None:
     role_lookup = foundry.get_admin_roles()
     log.info("Fetched %d role definitions", len(role_lookup))
 
+    # Link each ontology action type back to its parent project.
+    # The filesystem traversal captures ACTIONS_ACTIONTYPE resources with a
+    # projectRid; we use that to set program["projectRid"] so build_oaa_payload
+    # can nest programs under the correct project resource.
+    action_type_project: Dict[str, str] = {
+        res["rid"]: res["projectRid"]
+        for res in resources
+        if res.get("rid", "").startswith("ri.actions.") and res.get("projectRid")
+    }
+    for program in programs:
+        prog_rid = program.get("rid") or program.get("id") or program.get("apiName")
+        if prog_rid and prog_rid in action_type_project and "projectRid" not in program:
+            program["projectRid"] = action_type_project[prog_rid]
+            log.debug("Linked program %s to project %s", prog_rid, action_type_project[prog_rid])
+    log.info(
+        "Linked %d of %d programs to parent projects via filesystem traversal",
+        sum(1 for p in programs if p.get("projectRid")),
+        len(programs),
+    )
+
     # Fetch group memberships
     log.info("Fetching group memberships...")
     group_memberships: List[Dict] = []
@@ -768,6 +793,25 @@ def main() -> None:
             policies = foundry.get_access_policies(rid)
             if policies:
                 access_policies[rid] = policies
+
+    # Programs (ontology action types) need their own ACL fetch.
+    # Palantir may grant access at the action-type level directly, or inherit
+    # from the parent ontology. We try direct first; if empty we fall back to
+    # the ontology-level grant so group→role→program links are populated.
+    _ontology_policy_cache: Dict[str, List] = {}
+    for program in programs:
+        prog_rid = program.get("rid") or program.get("id") or program.get("apiName")
+        ont_rid = program.get("_ontologyRid")
+        if not prog_rid:
+            continue
+        policies = foundry.get_access_policies(prog_rid)
+        if policies:
+            access_policies[prog_rid] = policies
+        elif ont_rid:
+            if ont_rid not in _ontology_policy_cache:
+                _ontology_policy_cache[ont_rid] = foundry.get_access_policies(ont_rid)
+            if _ontology_policy_cache[ont_rid]:
+                access_policies[prog_rid] = _ontology_policy_cache[ont_rid]
 
     foundry_data = {
         "workspaces": workspaces,
