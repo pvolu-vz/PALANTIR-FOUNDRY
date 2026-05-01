@@ -303,6 +303,31 @@ class PalantirFoundryClient:
             log.warning("Could not fetch admin roles (role names will be inferred from ID): %s", e)
             return {}
 
+    def get_ontology_programs(self) -> List[Dict]:
+        """Fetch AIP programs and action types from the Palantir Foundry Ontology API."""
+        programs: List[Dict] = []
+        try:
+            ontologies = self.get_paginated_results("/api/v2/ontologies", items_key="data")
+            for ontology in ontologies:
+                ont_rid = ontology.get("rid") or ontology.get("ontologyRid")
+                if not ont_rid:
+                    continue
+                try:
+                    actions = self.get_paginated_results(
+                        f"/api/v2/ontologies/{ont_rid}/actionTypes",
+                        items_key="data",
+                    )
+                    for action in actions:
+                        action.setdefault("type", "AIP_PROGRAM")
+                        action["_ontologyRid"] = ont_rid
+                    programs.extend(actions)
+                except requests.RequestException as e:
+                    log.debug("Could not fetch action types for ontology %s: %s", ont_rid, e)
+        except requests.RequestException as e:
+            log.warning("Could not fetch ontologies (AIP programs skipped): %s", e)
+        log.info("Retrieved %d ontology programs", len(programs))
+        return programs
+
 
 def _apply_resource_properties(resource, data: Dict) -> None:
     """Set common metadata properties on an OAA resource object."""
@@ -327,8 +352,19 @@ def _map_role_to_oaa_permission(role_id: str, role_display_name: str = "") -> st
         return "discoverer"
     if any(kw in name for kw in ("viewer", "view", "read")):
         return "viewer"
-    # Default to least-privilege when the role name is unrecognised
     return "viewer"
+
+
+def _role_to_action_permissions(role_display_name: str) -> List[str]:
+    """Return action-item permission names granted by a Foundry role."""
+    name = role_display_name.lower()
+    if any(kw in name for kw in ("owner", "administer", "admin")):
+        return ["Edit Logic", "Run Model", "View Data", "Manage Access"]
+    if any(kw in name for kw in ("editor", "write", "edit")):
+        return ["Edit Logic", "Run Model", "View Data"]
+    if any(kw in name for kw in ("viewer", "view", "read", "discover")):
+        return ["View Data"]
+    return ["View Data"]
 
 
 def build_oaa_payload(
@@ -338,42 +374,47 @@ def build_oaa_payload(
 ) -> CustomApplication:
     """Build OAA CustomApplication from Palantir Foundry data.
 
-    Permission model: User > Group > Permissions > Application
+    Permission model: User > Group > Role > Action Permissions > Resource
       - Users are members of Groups
-      - Groups hold Permissions on Application resources
-      - Direct user-to-resource grants are not modelled; all access flows via group membership
+      - Groups are assigned Roles on Project resources
+      - Roles define fine-grained Action Permissions (Edit Logic, Run Model, View Data)
+      - Projects contain Programs and Datasets as sub-resources
+      - Direct user-to-resource grants are intentionally skipped
     """
     app = CustomApplication(
         name=datasource_name,
         application_type=provider_name,
     )
 
-    app.add_custom_permission("discoverer", [OAAPermission.MetadataRead])
-    app.add_custom_permission("viewer", [OAAPermission.DataRead, OAAPermission.MetadataRead])
-    app.add_custom_permission("editor", [OAAPermission.DataRead, OAAPermission.DataWrite, OAAPermission.MetadataRead])
-    app.add_custom_permission(
-        "owner",
-        [
-            OAAPermission.DataRead,
-            OAAPermission.DataWrite,
-            OAAPermission.MetadataRead,
-            OAAPermission.MetadataWrite,
-            OAAPermission.NonData,
-        ],
-    )
-    app.add_custom_permission(
-        "admin",
-        [
-            OAAPermission.DataRead,
-            OAAPermission.DataWrite,
-            OAAPermission.MetadataRead,
-            OAAPermission.MetadataWrite,
-        ],
-    )
+    # ── Action-level custom permissions ───────────────────────────────────────
+    app.add_custom_permission("View Data",     [OAAPermission.DataRead, OAAPermission.MetadataRead])
+    app.add_custom_permission("Edit Logic",    [OAAPermission.DataWrite, OAAPermission.MetadataWrite])
+    app.add_custom_permission("Run Model",     [OAAPermission.NonData])
+    app.add_custom_permission("Manage Access", [
+        OAAPermission.DataRead, OAAPermission.DataWrite,
+        OAAPermission.MetadataRead, OAAPermission.MetadataWrite, OAAPermission.NonData,
+    ])
 
     resource_lookup: Dict[str, object] = {}
     user_lookup: Dict[str, object] = {}
     group_lookup: Dict[str, object] = {}
+    project_resource_lookup: Dict[str, object] = {}
+
+    # ── Local roles ───────────────────────────────────────────────────────────
+    # Each Foundry role becomes an OAA local role that carries action permissions.
+    # role_name_lookup: Foundry roleId → OAA role display name
+    log.info("Creating local roles from Foundry role definitions...")
+    role_name_lookup: Dict[str, str] = {}
+    seen_role_names: set = set()
+    for role_id, role_display in foundry_data.get("role_lookup", {}).items():
+        role_name = role_display or role_id
+        if role_name not in seen_role_names:
+            action_perms = _role_to_action_permissions(role_name)
+            app.add_local_role(role_name, permissions=action_perms)
+            seen_role_names.add(role_name)
+            log.debug("Added role: %s → %s", role_name, action_perms)
+        role_name_lookup[role_id] = role_name
+    log.info("Created %d local roles", len(seen_role_names))
 
     # ── Users ─────────────────────────────────────────────────────────────────
     log.info("Processing users...")
@@ -423,14 +464,13 @@ def build_oaa_payload(
                 oaa_user.add_group(oaa_group)
                 membership_count += 1
         elif m_type in ("GROUP", "TEAM"):
-            # nested group — ensure the child group exists then add it as a member
             child_group = group_lookup.get(m_id)
             if child_group:
                 child_group.add_group(oaa_group)
                 membership_count += 1
     log.info("Linked %d group memberships", membership_count)
 
-    # ── Workspaces ────────────────────────────────────────────────────────────
+    # ── Workspaces (top-level resources) ──────────────────────────────────────
     log.info("Processing workspaces...")
     for workspace in foundry_data.get("workspaces", []):
         rid = workspace.get("rid") or workspace.get("id")
@@ -443,7 +483,7 @@ def build_oaa_payload(
         _apply_resource_properties(resource, workspace)
         log.debug("Added workspace: %s (%s)", name, rid)
 
-    # ── Projects ──────────────────────────────────────────────────────────────
+    # ── Projects (top-level resources, parent of Programs and Datasets) ────────
     log.info("Processing projects...")
     for project in foundry_data.get("projects", []):
         rid = project.get("rid") or project.get("id")
@@ -452,11 +492,12 @@ def build_oaa_payload(
             continue
         name = project.get("displayName") or project.get("name") or rid
         resource = app.add_resource(resource_id=rid, resource_name=name, resource_type="Project")
+        project_resource_lookup[rid] = resource
         resource_lookup[rid] = resource
         _apply_resource_properties(resource, project)
         log.debug("Added project: %s (%s)", name, rid)
 
-    # ── Datasets ──────────────────────────────────────────────────────────────
+    # ── Datasets (sub-resources under their parent project) ───────────────────
     log.info("Processing datasets...")
     for dataset in foundry_data.get("datasets", []):
         rid = dataset.get("rid") or dataset.get("id")
@@ -464,14 +505,39 @@ def build_oaa_payload(
             log.warning("Dataset missing rid/id — skipping")
             continue
         name = dataset.get("displayName") or dataset.get("name") or rid
-        resource = app.add_resource(resource_id=rid, resource_name=name, resource_type="Dataset")
-        resource_lookup[rid] = resource
-        _apply_resource_properties(resource, dataset)
-        if row_count := dataset.get("rowCount"):
-            resource.add_property("row_count", str(row_count), "str")
+        parent_rid = dataset.get("projectRid")
+        parent_project = project_resource_lookup.get(parent_rid) if parent_rid else None
+        if parent_project:
+            sub = parent_project.add_sub_resource(name=name, resource_type="Dataset", unique_id=rid)
+            resource_lookup[rid] = sub
+            if row_count := dataset.get("rowCount"):
+                sub.add_property("row_count", str(row_count), "str")
+        else:
+            resource = app.add_resource(resource_id=rid, resource_name=name, resource_type="Dataset")
+            resource_lookup[rid] = resource
+            if row_count := dataset.get("rowCount"):
+                resource.add_property("row_count", str(row_count), "str")
         log.debug("Added dataset: %s (%s)", name, rid)
 
-    # ── Generic resources ─────────────────────────────────────────────────────
+    # ── Programs / AIP models (sub-resources under their parent project) ───────
+    log.info("Processing ontology programs...")
+    for program in foundry_data.get("programs", []):
+        rid = program.get("rid") or program.get("id") or program.get("apiName")
+        if not rid:
+            log.warning("Program missing id — skipping")
+            continue
+        name = program.get("displayName") or program.get("name") or rid
+        parent_rid = program.get("projectRid") or program.get("_ontologyRid")
+        parent_project = project_resource_lookup.get(parent_rid) if parent_rid else None
+        if parent_project:
+            sub = parent_project.add_sub_resource(name=name, resource_type="Program", unique_id=rid)
+            resource_lookup[rid] = sub
+        else:
+            resource = app.add_resource(resource_id=rid, resource_name=name, resource_type="Program")
+            resource_lookup[rid] = resource
+        log.debug("Added program: %s (%s)", name, rid)
+
+    # ── Generic resources (sub-resource if they have projectRid, else top-level)
     log.info("Processing resources...")
     for res in foundry_data.get("resources", []):
         rid = res.get("rid") or res.get("id")
@@ -480,19 +546,30 @@ def build_oaa_payload(
             continue
         name = res.get("displayName") or res.get("name") or rid
         rtype = res.get("type", "Resource")
-        resource = app.add_resource(resource_id=rid, resource_name=name, resource_type=rtype)
-        resource_lookup[rid] = resource
-        _apply_resource_properties(resource, res)
+        rtype_label = "Program" if any(
+            kw in rtype.upper() for kw in ("FUNCTION", "MODEL", "PIPELINE", "PROGRAM", "AIP")
+        ) else rtype
+        parent_rid = res.get("projectRid")
+        parent_project = project_resource_lookup.get(parent_rid) if parent_rid else None
+        if parent_project:
+            sub = parent_project.add_sub_resource(name=name, resource_type=rtype_label, unique_id=rid)
+            resource_lookup[rid] = sub
+            _apply_resource_properties(sub, res)
+        else:
+            resource = app.add_resource(resource_id=rid, resource_name=name, resource_type=rtype_label)
+            resource_lookup[rid] = resource
+            _apply_resource_properties(resource, res)
         log.debug("Added resource: %s (%s)", name, rid)
 
     # ── Access policies ───────────────────────────────────────────────────────
     # v2 filesystem/resources/{rid}/roles returns ResourceRole objects:
     #   {resourceRolePrincipal: {type, principalId, principalType}, roleId}
     #
-    # Permission model: User > Group > Permissions > Application
-    # Only GROUP-level grants are applied to resources. Direct USER grants are
-    # intentionally skipped — users gain access exclusively through group membership.
-    log.info("Processing access policies (group-based grants only)...")
+    # Permission model: User > Group > Role > Action Permissions > Project
+    # Groups are assigned named Roles on Project resources; Roles carry the
+    # action permissions ("Edit Logic", "Run Model", "View Data").
+    # Direct USER grants are intentionally skipped — access flows via group membership.
+    log.info("Processing access policies (group → role → resource)...")
     total_permissions = 0
     skipped_direct_user_grants = 0
     for resource_id, policies in foundry_data.get("access_policies", {}).items():
@@ -503,33 +580,33 @@ def build_oaa_payload(
             rr_principal = policy.get("resourceRolePrincipal", {})
             principal_type_discriminator = rr_principal.get("type", "")
             role_id = policy.get("roleId", "")
-            # Map Foundry roleId (UUID) to an OAA permission name by
-            # looking up the role in the role_lookup dict (fetched from admin API),
-            # then matching keywords; default to "viewer" (least privilege).
-            role_display = foundry_data.get("role_lookup", {}).get(role_id, "")
-            role = _map_role_to_oaa_permission(role_id, role_display)
 
             if principal_type_discriminator == "everyone":
-                # Skip platform-wide "everyone" grants — not meaningful per-principal
                 continue
 
             p_id = rr_principal.get("principalId")
-            p_type = rr_principal.get("principalType", "").upper()  # USER or GROUP
+            p_type = rr_principal.get("principalType", "").upper()
             if not p_id:
                 continue
 
             if p_type == "USER":
-                # Permission model is User > Group > Permissions > Application.
-                # Direct user grants are skipped; access flows via group membership only.
                 log.debug(
                     "Skipping direct user grant: user %s, role %s, resource %s",
-                    p_id, role, resource_id,
+                    p_id, role_id, resource_id,
                 )
                 skipped_direct_user_grants += 1
             elif p_type == "GROUP":
                 if p_id not in group_lookup:
                     group_lookup[p_id] = app.add_local_group(p_id, unique_id=p_id)
-                group_lookup[p_id].add_permission(role, resources=[oaa_resource])
+                oaa_group = group_lookup[p_id]
+                role_name = role_name_lookup.get(role_id)
+                if role_name:
+                    oaa_group.add_role(role_name, resources=[oaa_resource])
+                else:
+                    # Role not in admin list — fall back to mapped permission
+                    role_display = foundry_data.get("role_lookup", {}).get(role_id, "")
+                    perm = _map_role_to_oaa_permission(role_id, role_display)
+                    oaa_group.add_permission(perm, resources=[oaa_resource])
                 total_permissions += 1
 
     if skipped_direct_user_grants:
@@ -539,14 +616,16 @@ def build_oaa_payload(
         )
 
     log.info(
-        "Payload: %d workspaces, %d projects, %d datasets, %d resources, "
-        "%d users, %d groups, %d memberships, %d permissions",
+        "Payload: %d workspaces, %d projects, %d datasets, %d programs, %d resources, "
+        "%d users, %d groups, %d roles, %d memberships, %d permissions",
         len(foundry_data.get("workspaces", [])),
         len(foundry_data.get("projects", [])),
         len(foundry_data.get("datasets", [])),
+        len(foundry_data.get("programs", [])),
         len(foundry_data.get("resources", [])),
         len(user_lookup),
         len(group_lookup),
+        len(seen_role_names),
         membership_count,
         total_permissions,
     )
@@ -664,6 +743,7 @@ def main() -> None:
     projects = foundry.get_projects()
     datasets = foundry.get_datasets()
     resources = foundry.get_resources()
+    programs = foundry.get_ontology_programs()
     users = foundry.get_users()
     groups = foundry.get_groups()
     role_lookup = foundry.get_admin_roles()
@@ -694,6 +774,7 @@ def main() -> None:
         "projects": projects,
         "datasets": datasets,
         "resources": resources,
+        "programs": programs,
         "users": users,
         "groups": groups,
         "group_memberships": group_memberships,
