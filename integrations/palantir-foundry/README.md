@@ -374,19 +374,167 @@ The integration includes automatic pagination handling and retry logic for trans
 
 ---
 
+## Data Model
+
+### OAA Entity Relationship
+
+The diagram below shows how all Palantir Foundry entities are structured within Veza's OAA `CustomApplication` model.
+
+```mermaid
+erDiagram
+    APPLICATION {
+        string name "palantir-foundry"
+        string application_type "Palantir Foundry"
+    }
+    LOCAL_USER {
+        string id "UUID from Foundry"
+        string name
+        string email
+        string[] identities "linked IdP email addresses"
+    }
+    LOCAL_GROUP {
+        string id "UUID from Foundry"
+        string name
+        string[] member_groups "nested group UUIDs"
+    }
+    RESOURCE {
+        string id "Foundry RID (ri.*.*.*.*)"
+        string name
+        string resource_type "Workspace | Project | Dataset | Program | ..."
+        string description
+    }
+    SUB_RESOURCE {
+        string id "Foundry RID"
+        string name
+        string resource_type "OPUS_MAP | WORKSHOP_MODULE | ..."
+    }
+    PERMISSION_GRANT {
+        string permission "View Data | Edit Logic | Run Model | Manage Access"
+        string identity_type "local_user | local_group"
+    }
+
+    APPLICATION ||--o{ LOCAL_USER : "has"
+    APPLICATION ||--o{ LOCAL_GROUP : "has"
+    APPLICATION ||--o{ RESOURCE : "has"
+    LOCAL_USER }o--o{ LOCAL_GROUP : "member of"
+    LOCAL_GROUP }o--o{ LOCAL_GROUP : "nested member of"
+    RESOURCE ||--o{ SUB_RESOURCE : "contains"
+    LOCAL_USER ||--o{ PERMISSION_GRANT : "has"
+    LOCAL_GROUP ||--o{ PERMISSION_GRANT : "has"
+    PERMISSION_GRANT }o--|| RESOURCE : "applies to"
+```
+
+---
+
+### Foundry Resource Type Taxonomy
+
+Foundry resources are identified by RID prefix. This diagram shows how each RID namespace maps to a resource type in the OAA payload, and where resources appear in the filesystem hierarchy.
+
+```mermaid
+graph TD
+    F["Palantir Foundry Instance"]
+
+    F --> WS["**Workspace**<br/><code>ri.compass.main.folder</code><br/><i>Top-level space</i>"]
+    WS --> PR["**Project**<br/><code>ri.compass.main.folder</code><br/><i>rid == projectRid</i>"]
+
+    PR --> DS["**Dataset**<br/><code>ri.foundry.main.dataset</code>"]
+    PR --> SR["**Sub-Resources** (nested inside Project)"]
+
+    SR --> MAP["OPUS_MAP<br/><code>ri.opus.main.map</code>"]
+    SR --> WM["WORKSHOP_MODULE<br/><code>ri.workshop.main.module</code>"]
+    SR --> NP["NOTEPAD_NOTEPAD<br/><code>ri.notepad.main.notepad</code>"]
+    SR --> TS["TIME_SERIES_CATALOG_SYNC<br/><code>ri.time-series-catalog.main.sync</code>"]
+    SR --> MS["MIO_MEDIA_SET<br/><code>ri.mio.main.media-set</code>"]
+    SR --> MKT["MARKETPLACE_BLOCK_SET_INSTALLATION<br/><code>ri.marketplace.main.block-set-installation</code>"]
+
+    F --> ONT["Ontology"]
+    ONT --> OT["ONTOLOGY_OBJECTTYPE<br/><code>ri.ontology.main.object-type</code>"]
+    ONT --> OR["ONTOLOGY_RELATION<br/><code>ri.ontology.main.relation</code>"]
+
+    F --> PROG["**Program** (Action Types & Pipelines)"]
+    PROG --> AT["Action Type<br/><code>ri.actions.main.action-type</code>"]
+    PROG --> PL["Pipeline<br/><code>ri.eddie.main.pipeline</code>"]
+
+    style F fill:#1a1a2e,color:#fff
+    style WS fill:#16213e,color:#fff
+    style PR fill:#0f3460,color:#fff
+    style ONT fill:#0f3460,color:#fff
+    style PROG fill:#0f3460,color:#fff
+```
+
+---
+
+### Permission Assignment Flow
+
+This diagram shows how Foundry role grants translate into Veza permissions, and how users inherit access through group membership — including nested groups.
+
+```mermaid
+flowchart LR
+    subgraph Identity["Identity Layer"]
+        U["User<br/>(local_user)"]
+        G["Group<br/>(local_group)"]
+        NG["Nested Group<br/>(local_group)"]
+    end
+
+    subgraph Permissions["Veza OAA Permissions"]
+        VD["View Data<br/><i>DataRead + MetadataRead</i>"]
+        EL["Edit Logic<br/><i>DataWrite + MetadataWrite</i>"]
+        RM["Run Model<br/><i>NonData</i>"]
+        MA["Manage Access<br/><i>DataRead + DataWrite<br/>MetadataRead + MetadataWrite<br/>NonData</i>"]
+    end
+
+    subgraph Resources["Resources"]
+        WS["Workspace"]
+        PR["Project"]
+        DS["Dataset"]
+        AT["Program / Action Type"]
+        SR["Sub-Resource"]
+    end
+
+    U -->|"direct grant"| VD
+    U -->|"direct grant"| EL
+    U -->|"direct grant"| RM
+    U -->|"direct grant"| MA
+    U -->|"member of"| G
+    G -->|"nested in"| NG
+    G -->|"group grant"| VD
+    G -->|"group grant"| EL
+    G -->|"group grant"| RM
+    G -->|"group grant"| MA
+    NG -->|"group grant"| VD
+    NG -->|"group grant"| MA
+
+    VD --> WS & PR & DS & AT
+    EL --> WS & PR & DS
+    RM --> WS & PR & AT
+    MA --> WS & PR
+
+    PR -->|"contains"| SR
+```
+
+---
+
 ## Data Mapping
 
 ### Entity Mapping
 
-| Palantir Foundry | Veza OAA Type | Notes |
-|-----------------|---------------|-------|
-| User | Local User | Email linked to IdP identity |
-| Group | Local Group | Nested group memberships included |
-| Space | Resource (Workspace) | Top-level filesystem container |
-| Project folder | Resource (Project) | Identified by `rid == projectRid` |
-| Dataset | Resource (Dataset) | Includes `row_count` property |
-| Other filesystem object | Resource (type from API) | Notebooks, repos, etc. |
-| Ontology Action Type | Resource (ActionType) | Includes `api_name`, `status`, `description` |
+| Palantir Foundry | Veza OAA Type | RID Prefix | Notes |
+|-----------------|---------------|------------|-------|
+| User | Local User | — | Email linked to IdP identity |
+| Group | Local Group | — | Nested group memberships included |
+| Space | Resource — Workspace | `ri.compass.main.folder` | Top-level filesystem container |
+| Project folder | Resource — Project | `ri.compass.main.folder` | Identified by `rid == projectRid` |
+| Dataset | Resource — Dataset | `ri.foundry.main.dataset` | Includes `row_count` property |
+| Ontology Action Type | Resource — Program | `ri.actions.main.action-type` | Includes `api_name`, `status`, `description` |
+| Pipeline | Resource — Program | `ri.eddie.main.pipeline` | Transform and ETL pipelines |
+| Ontology Object Type | Resource — ONTOLOGY_OBJECTTYPE | `ri.ontology.main.object-type` | Ontology entity definitions |
+| Ontology Relation | Resource — ONTOLOGY_RELATION | `ri.ontology.main.relation` | Ontology relationship links |
+| Workshop Module | Resource — WORKSHOP_MODULE | `ri.workshop.main.module` | Application dashboards |
+| Notepad | Resource — NOTEPAD_NOTEPAD | `ri.notepad.main.notepad` | Documentation assets |
+| Media Set | Resource — MIO_MEDIA_SET | `ri.mio.main.media-set` | Binary media collections |
+| Time Series Sync | Resource — TIME_SERIES_CATALOG_SYNC | `ri.time-series-catalog.main.sync` | Time series integrations |
+| Marketplace Installation | Resource — MARKETPLACE_BLOCK_SET_INSTALLATION | `ri.marketplace.main.block-set-installation` | Installed Marketplace bundles |
+| Map (sub-resource) | Sub-Resource — OPUS_MAP | `ri.opus.main.map` | Geospatial map objects nested in a Project |
 
 ### Permission Mapping
 
@@ -400,6 +548,15 @@ Foundry role UUIDs are mapped to Veza custom permissions by matching keywords in
 | `viewer`, `view`, `read` (default) | `viewer` | DataRead, MetadataRead |
 | (action type access) | `can_apply` | NonData, MetadataRead |
 | (platform admin) | `admin` | DataRead, DataWrite, MetadataRead, MetadataWrite |
+
+The four OAA permissions visible in Veza map to Foundry role semantics as follows:
+
+| Veza Permission | OAA Capabilities | Foundry Equivalent |
+|-----------------|------------------|--------------------|
+| View Data | DataRead, MetadataRead | Viewer / Discover role |
+| Edit Logic | DataWrite, MetadataWrite | Editor / Write role |
+| Run Model | NonData | Action Type applicability |
+| Manage Access | DataRead, DataWrite, MetadataRead, MetadataWrite, NonData | Owner / Admin role |
 
 ---
 
