@@ -461,12 +461,12 @@ def build_oaa_payload(
         if m_type == "USER":
             oaa_user = user_lookup.get(m_id)
             if oaa_user:
-                oaa_user.add_group(oaa_group)
+                oaa_user.add_group(group_id)
                 membership_count += 1
         elif m_type in ("GROUP", "TEAM"):
             child_group = group_lookup.get(m_id)
             if child_group:
-                child_group.add_group(oaa_group)
+                child_group.add_group(group_id)
                 membership_count += 1
     log.info("Linked %d group memberships", membership_count)
 
@@ -478,7 +478,7 @@ def build_oaa_payload(
             log.warning("Workspace missing rid/id — skipping")
             continue
         name = workspace.get("displayName") or workspace.get("name") or rid
-        resource = app.add_resource(resource_id=rid, resource_name=name, resource_type="Workspace")
+        resource = app.add_resource(name=name, resource_type="Workspace", unique_id=rid)
         resource_lookup[rid] = resource
         _apply_resource_properties(resource, workspace)
         log.debug("Added workspace: %s (%s)", name, rid)
@@ -491,7 +491,7 @@ def build_oaa_payload(
             log.warning("Project missing rid/id — skipping")
             continue
         name = project.get("displayName") or project.get("name") or rid
-        resource = app.add_resource(resource_id=rid, resource_name=name, resource_type="Project")
+        resource = app.add_resource(name=name, resource_type="Project", unique_id=rid)
         project_resource_lookup[rid] = resource
         resource_lookup[rid] = resource
         _apply_resource_properties(resource, project)
@@ -513,7 +513,7 @@ def build_oaa_payload(
             if row_count := dataset.get("rowCount"):
                 sub.add_property("row_count", str(row_count), "str")
         else:
-            resource = app.add_resource(resource_id=rid, resource_name=name, resource_type="Dataset")
+            resource = app.add_resource(name=name, resource_type="Dataset", unique_id=rid)
             resource_lookup[rid] = resource
             if row_count := dataset.get("rowCount"):
                 resource.add_property("row_count", str(row_count), "str")
@@ -533,7 +533,7 @@ def build_oaa_payload(
             sub = parent_project.add_sub_resource(name=name, resource_type="Program", unique_id=rid)
             resource_lookup[rid] = sub
         else:
-            resource = app.add_resource(resource_id=rid, resource_name=name, resource_type="Program")
+            resource = app.add_resource(name=name, resource_type="Program", unique_id=rid)
             resource_lookup[rid] = resource
         log.debug("Added program: %s (%s)", name, rid)
 
@@ -556,7 +556,7 @@ def build_oaa_payload(
             resource_lookup[rid] = sub
             _apply_resource_properties(sub, res)
         else:
-            resource = app.add_resource(resource_id=rid, resource_name=name, resource_type=rtype_label)
+            resource = app.add_resource(name=name, resource_type=rtype_label, unique_id=rid)
             resource_lookup[rid] = resource
             _apply_resource_properties(resource, res)
         log.debug("Added resource: %s (%s)", name, rid)
