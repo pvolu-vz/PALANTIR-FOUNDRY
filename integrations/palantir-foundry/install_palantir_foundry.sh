@@ -5,7 +5,7 @@ set -uo pipefail
 # ---------------------------------------------------------------------------
 # Defaults
 # ---------------------------------------------------------------------------
-REPO_URL="${REPO_URL:-https://github.com/andrewmusto-git/Palantir.git}"
+REPO_URL="${REPO_URL:-https://github.com/pvolu-vz/PALANTIR-FOUNDRY.git}"
 BRANCH="${BRANCH:-main}"
 INTEGRATION_SUBDIR="integrations/palantir-foundry"
 INSTALL_DIR="${INSTALL_DIR:-/opt/VEZA/palantir-foundry-veza}"

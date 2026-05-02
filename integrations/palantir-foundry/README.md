@@ -76,7 +76,7 @@ Optional:
 ### One-Command Installation (Interactive - Linux/macOS)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/andrewmusto-git/OAA_Veza/main/integrations/palantir-foundry/install_palantir_foundry.sh | bash
+curl -fsSL https://raw.githubusercontent.com/pvolu-vz/PALANTIR-FOUNDRY/main/integrations/palantir-foundry/install_palantir_foundry.sh | bash
 ```
 
 The installer will:
@@ -95,9 +95,8 @@ The installer will:
 ### Step 1: Clone the Repository
 
 ```bash
-# Clone the OAA Veza repository
-git clone https://github.com/andrewmusto-git/OAA_Veza.git
-cd OAA_Veza/integrations/palantir-foundry
+git clone https://github.com/pvolu-vz/PALANTIR-FOUNDRY.git
+cd PALANTIR-FOUNDRY/integrations/palantir-foundry
 ```
 
 ### Step 2: Create Python Virtual Environment
