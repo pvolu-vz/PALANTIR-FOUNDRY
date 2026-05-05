@@ -45,9 +45,16 @@ def _setup_logging(log_level: str = "INFO") -> None:
         datefmt="%Y-%m-%dT%H:%M:%S",
     ))
 
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setFormatter(logging.Formatter(
+        fmt="%(asctime)s %(levelname)-8s %(message)s",
+        datefmt="%Y-%m-%dT%H:%M:%S",
+    ))
+
     root = logging.getLogger()
     root.setLevel(getattr(logging, log_level.upper(), logging.INFO))
     root.addHandler(handler)
+    root.addHandler(console_handler)
 
 
 class PalantirFoundryClient:
