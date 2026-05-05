@@ -337,10 +337,13 @@ class PalantirFoundryClient:
         return programs
 
 
+VEZA_MAX_FIELD_LEN = 512
+
+
 def _apply_resource_properties(resource, data: Dict) -> None:
     """Set description on an OAA resource object if present in the source data."""
     if description := data.get("description"):
-        resource.description = description
+        resource.description = description[:VEZA_MAX_FIELD_LEN]
 
 
 def _map_role_to_oaa_permissions(role_id: str, role_display_name: str = "") -> List[str]:
@@ -479,7 +482,7 @@ def build_oaa_payload(
         if not rid:
             log.warning("Workspace missing rid/id — skipping")
             continue
-        name = workspace.get("displayName") or workspace.get("name") or rid
+        name = (workspace.get("displayName") or workspace.get("name") or rid)[:VEZA_MAX_FIELD_LEN]
         resource = app.add_resource(name=name, resource_type="Workspace", unique_id=rid)
         resource_lookup[rid] = resource
         _apply_resource_properties(resource, workspace)
@@ -492,7 +495,7 @@ def build_oaa_payload(
         if not rid:
             log.warning("Project missing rid/id — skipping")
             continue
-        name = project.get("displayName") or project.get("name") or rid
+        name = (project.get("displayName") or project.get("name") or rid)[:VEZA_MAX_FIELD_LEN]
         resource = app.add_resource(name=name, resource_type="Project", unique_id=rid)
         project_resource_lookup[rid] = resource
         resource_lookup[rid] = resource
@@ -506,7 +509,7 @@ def build_oaa_payload(
         if not rid:
             log.warning("Dataset missing rid/id — skipping")
             continue
-        name = dataset.get("displayName") or dataset.get("name") or rid
+        name = (dataset.get("displayName") or dataset.get("name") or rid)[:VEZA_MAX_FIELD_LEN]
         parent_rid = dataset.get("projectRid")
         parent_project = project_resource_lookup.get(parent_rid) if parent_rid else None
         if parent_project:
@@ -528,7 +531,7 @@ def build_oaa_payload(
         if not rid:
             log.warning("Program missing id — skipping")
             continue
-        name = program.get("displayName") or program.get("name") or rid
+        name = (program.get("displayName") or program.get("name") or rid)[:VEZA_MAX_FIELD_LEN]
         parent_rid = program.get("projectRid") or program.get("_ontologyRid")
         parent_project = project_resource_lookup.get(parent_rid) if parent_rid else None
         if parent_project:
@@ -550,7 +553,7 @@ def build_oaa_payload(
         if rid in resource_lookup:
             log.debug("Skipping resource %s — already added as a program", rid)
             continue
-        name = res.get("displayName") or res.get("name") or rid
+        name = (res.get("displayName") or res.get("name") or rid)[:VEZA_MAX_FIELD_LEN]
         rtype = res.get("type", "Resource")
         rtype_label = "Program" if any(
             kw in rtype.upper() for kw in ("FUNCTION", "MODEL", "PIPELINE", "PROGRAM", "AIP")
