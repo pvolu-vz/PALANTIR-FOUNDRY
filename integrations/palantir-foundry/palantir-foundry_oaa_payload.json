@@ -93,7 +93,105 @@
           "id": "eee6f6aa-8c06-4ca9-a340-c7c50964c6da"
         }
       ],
-      "local_roles": [],
+      "local_roles": [
+        {
+          "name": "Compass Namespace Contributor",
+          "permissions": [
+            "View Data"
+          ],
+          "id": "compass-namespace:contributor"
+        },
+        {
+          "name": "Ontology Edit",
+          "permissions": [
+            "Edit Logic",
+            "Run Model",
+            "View Data"
+          ],
+          "id": "ontology:edit"
+        },
+        {
+          "name": "Marketplace Installation Edit",
+          "permissions": [
+            "Edit Logic",
+            "Run Model",
+            "View Data"
+          ],
+          "id": "marketplace-installation:edit"
+        },
+        {
+          "name": "Compass Namespace Resource Curator",
+          "permissions": [
+            "View Data"
+          ],
+          "id": "compass-namespace:resource-curator"
+        },
+        {
+          "name": "Compass Manage",
+          "permissions": [
+            "View Data"
+          ],
+          "id": "compass:manage"
+        },
+        {
+          "name": "Compass View",
+          "permissions": [
+            "View Data"
+          ],
+          "id": "compass:view"
+        },
+        {
+          "name": "Ontology View",
+          "permissions": [
+            "View Data"
+          ],
+          "id": "ontology:view"
+        },
+        {
+          "name": "Marketplace Installation Discover",
+          "permissions": [
+            "View Data"
+          ],
+          "id": "marketplace-installation:discover"
+        },
+        {
+          "name": "Compass Namespace Manage",
+          "permissions": [
+            "View Data"
+          ],
+          "id": "compass-namespace:manage"
+        },
+        {
+          "name": "Ontology Manage",
+          "permissions": [
+            "View Data"
+          ],
+          "id": "ontology:manage"
+        },
+        {
+          "name": "Compass Edit",
+          "permissions": [
+            "Edit Logic",
+            "Run Model",
+            "View Data"
+          ],
+          "id": "compass:edit"
+        },
+        {
+          "name": "Compass Discover",
+          "permissions": [
+            "View Data"
+          ],
+          "id": "compass:discover"
+        },
+        {
+          "name": "Marketplace Installation Manage",
+          "permissions": [
+            "View Data"
+          ],
+          "id": "marketplace-installation:manage"
+        }
+      ],
       "local_access_creds": [],
       "tags": [],
       "custom_properties": {},
@@ -110,16 +208,125 @@
           "description": "Flacon project to manage logistics",
           "sub_resources": [
             {
+              "id": "ri.foundry.main.dataset.86a6a55d-fe5e-4b78-91cf-be238f22e485",
+              "name": "Tasks_Dataset",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.ca1654fb-c4f1-4849-bd75-fe053f1480f5",
+              "name": "Employees_Dataset",
+              "resource_type": "Dataset"
+            },
+            {
               "id": "ri.opus.main.map.74efa5c9-298c-4044-bf25-416d727e59c1",
               "name": "Map",
               "resource_type": "OPUS_MAP"
+            },
+            {
+              "id": "ri.workshop.main.module.4506e022-643f-404b-b687-a1312593b2f9",
+              "name": "Task Manager Dashboard",
+              "resource_type": "WORKSHOP_MODULE"
+            },
+            {
+              "id": "ri.evals..evaluation-suite.32441275-9c7a-4d50-b44a-2c18bf8f9250",
+              "name": "Task Manager (Intermediate) - evaluation suite",
+              "resource_type": "EVALS_EVALUATIONSUITE",
+              "description": "Evaluation suite"
+            },
+            {
+              "id": "ri.aip-agents..agent.4e870c57-3c8c-46ba-8d79-0d3222e6d0e9",
+              "name": "Task Manager (Intermediate)",
+              "resource_type": "Program",
+              "description": "Enhanced task assistant with search tools, citations, and dynamic filtering through application state."
+            },
+            {
+              "id": "ri.evals..evaluation-suite.d20ce824-9ff0-45b2-9163-068d6bf3d30d",
+              "name": "Task Manager (Beginner) - evaluation suite",
+              "resource_type": "EVALS_EVALUATIONSUITE",
+              "description": "Evaluation suite"
+            },
+            {
+              "id": "ri.aip-agents..agent.27d0eb2e-bfd4-4983-8213-a1b0c534f0c8",
+              "name": "Task Manager (Beginner)",
+              "resource_type": "Program",
+              "description": "A simple, context-aware agent that helps users view and search for employees and tasks."
+            },
+            {
+              "id": "ri.evals..evaluation-suite.5d8b13c9-f4bf-4ed3-87c1-d8eb173e72b8",
+              "name": "Task Manager (Advanced) - evaluation suite",
+              "resource_type": "EVALS_EVALUATIONSUITE",
+              "description": "Evaluation suite"
+            },
+            {
+              "id": "ri.aip-agents..agent.fd1b8fbf-3d6f-4d93-acca-2392871713c1",
+              "name": "Task Manager (Advanced)",
+              "resource_type": "Program",
+              "description": "Advanced Agent with Ontology Actions, application state variables, and Workshop integration for production deployment."
+            },
+            {
+              "id": "ri.aip-assist.main.walkthrough.0a0ec371-236c-4868-84e6-fac7b01de01f",
+              "name": "Chatbot Studio Walkthrough",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.marketplace.main.block-set-installation.ba2d6ff7-3561-401d-bf5d-188775516a12",
+              "name": "Build with AIP Chatbot Studio",
+              "resource_type": "MARKETPLACE_BLOCK_SET_INSTALLATION"
             }
           ]
         },
         {
           "id": "ri.compass.main.folder.b4f40e5b-d617-4282-b5cc-0b813553f177",
           "name": "First project",
-          "resource_type": "Project"
+          "resource_type": "Project",
+          "sub_resources": [
+            {
+              "id": "ri.foundry.main.dataset.91c897cd-3c8e-4712-8e63-4f2998260ad8",
+              "name": "memory-dataset",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.foundry.main.dataset.56b5d71a-4f4f-4f24-83bc-d6c09394a05b",
+              "name": "Memory",
+              "resource_type": "Dataset"
+            },
+            {
+              "id": "ri.aip-agents..agent.b4f05a30-45e1-487f-92ab-229fd9a324a5",
+              "name": "Long-term Memory Agent",
+              "resource_type": "Program",
+              "description": "This agent will store and remember important memories you share with it"
+            },
+            {
+              "id": "ri.workshop.main.module.b7ea7d7d-0503-49ef-8756-ea505ab93b25",
+              "name": "Long Term Memory Agent Workshop",
+              "resource_type": "WORKSHOP_MODULE"
+            },
+            {
+              "id": "ri.eddie.main.pipeline.3fa80afa-1b6d-412c-a77a-4c9d45f2bc91",
+              "name": "memoryPipeline",
+              "resource_type": "Program"
+            },
+            {
+              "id": "ri.stemma.main.repository.60e77f00-7086-40ee-82ee-3e6c37e10983",
+              "name": "memoryfunctions",
+              "resource_type": "STEMMA_REPOSITORY"
+            },
+            {
+              "id": "ri.gps.main.view.618e2f5e-27b7-4207-897d-c7c4e1a69dbb",
+              "name": "memory-dataset restricted view",
+              "resource_type": "GPS_VIEW"
+            },
+            {
+              "id": "ri.marketplace.main.block-set-installation.e173e6cf-8426-47fe-8e5e-7f9c83860456",
+              "name": "Build an AIP Chatbot with Long-Term Memory using AIP Chatbot Studio",
+              "resource_type": "MARKETPLACE_BLOCK_SET_INSTALLATION"
+            },
+            {
+              "id": "ri.aip-assist.main.walkthrough.06467659-53ce-4a5b-9e3a-6365aaadddd2",
+              "name": "AIP Chatbot Studio Long Term Memory Chatbot Walkthrough",
+              "resource_type": "Program"
+            }
+          ]
         },
         {
           "id": "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6",
@@ -571,6 +778,46 @@
               "resource_type": "MARKETPLACE_BLOCK_SET_INSTALLATION"
             }
           ]
+        },
+        {
+          "id": "ri.actions.main.action-type.102979db-7be5-4fb5-90fc-45049470e728",
+          "name": "[Example ks88] Edit Tasks",
+          "resource_type": "Program"
+        },
+        {
+          "id": "ri.actions.main.action-type.1b23fd8c-0438-49b8-85d8-6714b4d48854",
+          "name": "[Example ks88] Delete Tasks",
+          "resource_type": "Program"
+        },
+        {
+          "id": "ri.actions.main.action-type.3a078d55-d2c0-44d9-be4b-4d85a74fdac1",
+          "name": "[Example ks88] Delete Employees",
+          "resource_type": "Program"
+        },
+        {
+          "id": "ri.actions.main.action-type.45878c8f-5320-4619-bf17-58dce473dfa9",
+          "name": "[Example ks88] Create Tasks ",
+          "resource_type": "Program"
+        },
+        {
+          "id": "ri.actions.main.action-type.a0854af3-0f06-47b9-aafb-0e0c0b3b7853",
+          "name": "[Example ne23] Delete Memory",
+          "resource_type": "Program"
+        },
+        {
+          "id": "ri.actions.main.action-type.a5a45069-42cb-44ee-bc6b-01e571bc80d6",
+          "name": "[Example ne23] Create Memory",
+          "resource_type": "Program"
+        },
+        {
+          "id": "ri.actions.main.action-type.cf163609-0b9e-419d-a660-5cfed80110d6",
+          "name": "[Example ks88] Edit Employees",
+          "resource_type": "Program"
+        },
+        {
+          "id": "ri.actions.main.action-type.fe25f1b4-2a47-40ab-8596-63712d67200a",
+          "name": "[Example ks88] Create Employees",
+          "resource_type": "Program"
         }
       ]
     }
@@ -679,8 +926,17 @@
         {
           "application": "palantir-foundry",
           "resources": [
+            "ri.compass.main.folder.c2e0808a-cdb3-4f43-a3b8-506db6f194b2",
             "ri.compass.main.folder.b4f40e5b-d617-4282-b5cc-0b813553f177",
-            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
+            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6",
+            "ri.actions.main.action-type.102979db-7be5-4fb5-90fc-45049470e728",
+            "ri.actions.main.action-type.1b23fd8c-0438-49b8-85d8-6714b4d48854",
+            "ri.actions.main.action-type.3a078d55-d2c0-44d9-be4b-4d85a74fdac1",
+            "ri.actions.main.action-type.45878c8f-5320-4619-bf17-58dce473dfa9",
+            "ri.actions.main.action-type.a0854af3-0f06-47b9-aafb-0e0c0b3b7853",
+            "ri.actions.main.action-type.a5a45069-42cb-44ee-bc6b-01e571bc80d6",
+            "ri.actions.main.action-type.cf163609-0b9e-419d-a660-5cfed80110d6",
+            "ri.actions.main.action-type.fe25f1b4-2a47-40ab-8596-63712d67200a"
           ],
           "permission": "Manage Access"
         }
@@ -689,107 +945,86 @@
     {
       "identity": "009a1bdb-3025-4477-ab62-15878caa827a",
       "identity_type": "local_group",
-      "application_permissions": [
+      "role_assignments": [
         {
           "application": "palantir-foundry",
+          "role": "marketplace-installation:discover",
+          "apply_to_application": false,
           "resources": [
             "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
-          ],
-          "permission": "View Data"
+          ]
         },
         {
           "application": "palantir-foundry",
+          "role": "marketplace-installation:edit",
+          "apply_to_application": false,
           "resources": [
             "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
-          ],
-          "permission": "Edit Logic"
-        },
-        {
-          "application": "palantir-foundry",
-          "resources": [
-            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
-          ],
-          "permission": "Run Model"
+          ]
         }
       ]
     },
     {
       "identity": "677c9eff-16cb-4479-9d87-149918099616",
       "identity_type": "local_group",
-      "application_permissions": [
+      "role_assignments": [
         {
           "application": "palantir-foundry",
+          "role": "compass:edit",
+          "apply_to_application": false,
           "resources": [
             "ri.compass.main.folder.480ec4ac-2f32-4f02-b447-e1d9bb3fecec"
-          ],
-          "permission": "Edit Logic"
-        },
-        {
-          "application": "palantir-foundry",
-          "resources": [
-            "ri.compass.main.folder.480ec4ac-2f32-4f02-b447-e1d9bb3fecec"
-          ],
-          "permission": "Run Model"
-        },
-        {
-          "application": "palantir-foundry",
-          "resources": [
-            "ri.compass.main.folder.480ec4ac-2f32-4f02-b447-e1d9bb3fecec"
-          ],
-          "permission": "View Data"
+          ]
         }
       ]
     },
     {
       "identity": "7c4dcf29-e80f-4778-a9d0-e3709cb6b0f7",
       "identity_type": "local_group",
-      "application_permissions": [
+      "role_assignments": [
         {
           "application": "palantir-foundry",
+          "role": "compass:manage",
+          "apply_to_application": false,
           "resources": [
             "ri.compass.main.folder.480ec4ac-2f32-4f02-b447-e1d9bb3fecec"
-          ],
-          "permission": "Manage Access"
+          ]
         }
       ]
     },
     {
       "identity": "d84a45b3-0e69-4744-95c5-3b2af93e9bdb",
       "identity_type": "local_group",
-      "application_permissions": [
+      "role_assignments": [
         {
           "application": "palantir-foundry",
+          "role": "marketplace-installation:edit",
+          "apply_to_application": false,
           "resources": [
             "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
-          ],
-          "permission": "Edit Logic"
+          ]
         },
         {
           "application": "palantir-foundry",
+          "role": "marketplace-installation:discover",
+          "apply_to_application": false,
           "resources": [
             "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
-          ],
-          "permission": "Run Model"
-        },
-        {
-          "application": "palantir-foundry",
-          "resources": [
-            "ri.compass.main.folder.bd82ebca-da1a-45f6-8ac9-58c8cca019c6"
-          ],
-          "permission": "View Data"
+          ]
         }
       ]
     },
     {
       "identity": "eee6f6aa-8c06-4ca9-a340-c7c50964c6da",
       "identity_type": "local_group",
-      "application_permissions": [
+      "role_assignments": [
         {
           "application": "palantir-foundry",
+          "role": "compass:view",
+          "apply_to_application": false,
           "resources": [
             "ri.compass.main.folder.480ec4ac-2f32-4f02-b447-e1d9bb3fecec"
-          ],
-          "permission": "View Data"
+          ]
         }
       ]
     }

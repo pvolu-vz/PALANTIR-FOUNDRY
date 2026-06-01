@@ -10,6 +10,7 @@ import argparse
 import json
 import logging
 import os
+import re
 import sys
 from datetime import datetime
 from logging.handlers import TimedRotatingFileHandler
@@ -311,6 +312,17 @@ class PalantirFoundryClient:
             log.warning("Could not fetch admin roles (role names will be inferred from ID): %s", e)
             return {}
 
+    def get_role_by_id(self, role_id: str) -> Optional[str]:
+        """Try to fetch a single role's displayName. Returns None on any error (silent)."""
+        try:
+            url = self.base_url.rstrip("/") + f"/api/v2/admin/roles/{role_id}"
+            resp = requests.get(url, headers=self.headers, timeout=10)
+            if resp.ok:
+                return resp.json().get("displayName")
+        except requests.RequestException:
+            pass
+        return None
+
     def get_ontology_programs(self) -> List[Dict]:
         """Fetch AIP programs and action types from the Palantir Foundry Ontology API."""
         programs: List[Dict] = []
@@ -344,6 +356,16 @@ def _apply_resource_properties(resource, data: Dict) -> None:
     """Set description on an OAA resource object if present in the source data."""
     if description := data.get("description"):
         resource.description = description[:VEZA_MAX_FIELD_LEN]
+
+
+def _role_id_to_display_name(role_id: str) -> str:
+    """Convert a Foundry roleId to a human-readable display name.
+
+    compass:edit -> 'Compass Edit'
+    marketplace-installation:manage -> 'Marketplace Installation Manage'
+    """
+    parts = re.split(r"[:\-_]", role_id)
+    return " ".join(p.capitalize() for p in parts if p)
 
 
 def _map_role_to_oaa_permissions(role_id: str, role_display_name: str = "") -> List[str]:
@@ -413,7 +435,7 @@ def build_oaa_payload(
         role_name = role_display or role_id
         if role_name not in seen_role_names:
             action_perms = _role_to_action_permissions(role_name)
-            app.add_local_role(role_name, permissions=action_perms)
+            app.add_local_role(role_name, unique_id=role_id, permissions=action_perms)
             seen_role_names.add(role_name)
             log.debug("Added role: %s → %s", role_name, action_perms)
         role_name_lookup[role_id] = role_name
@@ -617,7 +639,7 @@ def build_oaa_payload(
                 oaa_group = group_lookup[p_id]
                 role_name = role_name_lookup.get(role_id)
                 if role_name:
-                    oaa_group.add_role(role_name, resources=[oaa_resource])
+                    oaa_group.add_role(role_id, resources=[oaa_resource])
                 else:
                     role_display = foundry_data.get("role_lookup", {}).get(role_id, "")
                     for perm in _map_role_to_oaa_permissions(role_id, role_display):
@@ -762,7 +784,7 @@ def main() -> None:
     users = foundry.get_users()
     groups = foundry.get_groups()
     role_lookup = foundry.get_admin_roles()
-    log.info("Fetched %d role definitions", len(role_lookup))
+    log.info("Fetched %d role definitions from admin endpoint", len(role_lookup))
 
     # Link each ontology action type back to its parent project.
     # The filesystem traversal captures ACTIONS_ACTIONTYPE resources with a
@@ -822,6 +844,22 @@ def main() -> None:
                 _ontology_policy_cache[ont_rid] = foundry.get_access_policies(ont_rid)
             if _ontology_policy_cache[ont_rid]:
                 access_policies[prog_rid] = _ontology_policy_cache[ont_rid]
+
+    # Harvest roleIds seen in access policies; fill gaps left when /api/v2/admin/roles returns 404
+    seen_role_ids: set = {
+        policy.get("roleId")
+        for policies in access_policies.values()
+        for policy in policies
+        if policy.get("roleId")
+    }
+    synthesized = 0
+    for rid in seen_role_ids:
+        if rid not in role_lookup:
+            fetched = foundry.get_role_by_id(rid)
+            role_lookup[rid] = fetched if fetched else _role_id_to_display_name(rid)
+            synthesized += 1
+    if synthesized:
+        log.info("Synthesized %d role definitions from access policies (admin/roles endpoint unavailable)", synthesized)
 
     foundry_data = {
         "workspaces": workspaces,
